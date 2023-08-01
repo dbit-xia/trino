@@ -103,6 +103,7 @@
         <module>plugin/trino-session-property-managers</module>
         <module>plugin/trino-singlestore</module>
         <module>plugin/trino-sqlserver</module>
+        <module>plugin/trino-sybase</module>
         <module>plugin/trino-teradata-functions</module>
         <module>plugin/trino-thrift</module>
         <module>plugin/trino-thrift-api</module>
