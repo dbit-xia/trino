@@ -14,20 +14,22 @@
 package io.trino.plugin.sybase;
 
 import com.google.common.collect.ImmutableMap;
-import io.trino.spi.Plugin;
-import io.trino.spi.connector.ConnectorFactory;
-import io.trino.testing.TestingConnectorContext;
-import org.testng.annotations.Test;
+import io.trino.testing.QueryRunner;
 
-import static com.google.common.collect.Iterables.getOnlyElement;
+import static io.trino.plugin.sybase.SqlServerQueryRunner.createSqlServerQueryRunner;
 
-public class TestSybasePlugin
+public class TestSqlServerConnectorSmokeTest
+        extends BaseSqlServerConnectorSmokeTest
 {
-    @Test
-    public void testCreateConnector()
+    @Override
+    protected QueryRunner createQueryRunner()
+            throws Exception
     {
-        Plugin plugin = new SybasePlugin();
-        ConnectorFactory factory = getOnlyElement(plugin.getConnectorFactories());
-        factory.create("test", ImmutableMap.of("connection-url", "jdbc:jtds:sybase://testdb"), new TestingConnectorContext()).shutdown();
+        TestingSqlServer sqlServer = closeAfterClass(new TestingSqlServer());
+        return createSqlServerQueryRunner(
+                sqlServer,
+                ImmutableMap.of(),
+                ImmutableMap.of(),
+                REQUIRED_TPCH_TABLES);
     }
 }

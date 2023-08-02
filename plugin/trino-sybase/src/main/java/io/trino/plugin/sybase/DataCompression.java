@@ -13,13 +13,10 @@
  */
 package io.trino.plugin.sybase;
 
-import io.trino.plugin.jdbc.JdbcPlugin;
-
-public class SybasePlugin
-        extends JdbcPlugin
+public enum DataCompression
 {
-    public SybasePlugin()
-    {
-        super("sybase", new SybaseClientModule());
-    }
+    NONE,
+    ROW,
+    PAGE,
+    /**/;
 }
