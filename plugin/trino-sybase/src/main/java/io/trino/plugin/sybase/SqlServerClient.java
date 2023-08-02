@@ -161,7 +161,6 @@ import static io.trino.plugin.jdbc.TypeHandlingJdbcSessionProperties.getUnsuppor
 import static io.trino.plugin.jdbc.UnsupportedTypeHandling.CONVERT_TO_VARCHAR;
 import static io.trino.plugin.sybase.SqlServerSessionProperties.isBulkCopyForWrite;
 import static io.trino.plugin.sybase.SqlServerSessionProperties.isBulkCopyForWriteLockDestinationTable;
-import static io.trino.plugin.sybase.SqlServerTableProperties.DATA_COMPRESSION;
 import static io.trino.plugin.sybase.SqlServerTableProperties.getDataCompression;
 import static io.trino.spi.StandardErrorCode.NOT_SUPPORTED;
 import static io.trino.spi.type.BigintType.BIGINT;
@@ -1070,22 +1069,22 @@ public class SqlServerClient
         return tableName + (isTableLockNeeded(session) ? " WITH (TABLOCK)" : "");
     }
 
-    @Override
-    public Map<String, Object> getTableProperties(ConnectorSession session, JdbcTableHandle tableHandle)
-    {
-        if (!tableHandle.isNamedRelation()) {
-            return ImmutableMap.of();
-        }
-        try (Connection connection = connectionFactory.openConnection(session);
-                Handle handle = Jdbi.open(connection)) {
-            return getTableDataCompressionWithRetries(handle, tableHandle)
-                    .map(dataCompression -> ImmutableMap.<String, Object>of(DATA_COMPRESSION, dataCompression))
-                    .orElseGet(ImmutableMap::of);
-        }
-        catch (SQLException exception) {
-            throw new TrinoException(JDBC_ERROR, exception);
-        }
-    }
+//    @Override
+//    public Map<String, Object> getTableProperties(ConnectorSession session, JdbcTableHandle tableHandle)
+//    {
+//        if (!tableHandle.isNamedRelation()) {
+//            return ImmutableMap.of();
+//        }
+//        try (Connection connection = connectionFactory.openConnection(session);
+//                Handle handle = Jdbi.open(connection)) {
+//            return getTableDataCompressionWithRetries(handle, tableHandle)
+//                    .map(dataCompression -> ImmutableMap.<String, Object>of(DATA_COMPRESSION, dataCompression))
+//                    .orElseGet(ImmutableMap::of);
+//        }
+//        catch (SQLException exception) {
+//            throw new TrinoException(JDBC_ERROR, exception);
+//        }
+//    }
 
     @Override
     public void abortReadConnection(Connection connection, ResultSet resultSet)
