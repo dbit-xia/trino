@@ -699,6 +699,9 @@ public abstract class BaseJdbcClient
         if (!column.isNullable()) {
             sb.append(" NOT NULL");
         }
+        else {
+            sb.append(" NULL");
+        }
         return sb.toString();
     }
 
