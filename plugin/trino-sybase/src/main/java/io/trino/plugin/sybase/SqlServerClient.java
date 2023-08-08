@@ -122,7 +122,6 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.base.Throwables.throwIfInstanceOf;
 import static com.google.common.collect.MoreCollectors.toOptional;
-import static com.google.common.util.concurrent.MoreExecutors.directExecutor;
 import static io.airlift.slice.Slices.wrappedBuffer;
 import static io.trino.plugin.jdbc.CaseSensitivity.CASE_INSENSITIVE;
 import static io.trino.plugin.jdbc.CaseSensitivity.CASE_SENSITIVE;
@@ -153,6 +152,7 @@ import static io.trino.plugin.jdbc.StandardColumnMappings.smallintColumnMapping;
 import static io.trino.plugin.jdbc.StandardColumnMappings.smallintWriteFunction;
 import static io.trino.plugin.jdbc.StandardColumnMappings.timeReadFunction;
 import static io.trino.plugin.jdbc.StandardColumnMappings.timestampColumnMapping;
+import static io.trino.plugin.jdbc.StandardColumnMappings.timestampColumnMappingUsingSqlTimestampWithRounding;
 import static io.trino.plugin.jdbc.StandardColumnMappings.timestampWriteFunction;
 import static io.trino.plugin.jdbc.StandardColumnMappings.tinyintWriteFunction;
 import static io.trino.plugin.jdbc.StandardColumnMappings.varcharReadFunction;
@@ -461,6 +461,11 @@ public class SqlServerClient
         }
     }
 
+    public static ColumnMapping datetimeColumnMapping(int precision)
+    {
+        return timestampColumnMappingUsingSqlTimestampWithRounding(createTimestampType(precision));
+    }
+
     @Override
     public Optional<ColumnMapping> toColumnMapping(ConnectorSession session, Connection connection, JdbcTypeHandle typeHandle)
     {
@@ -477,6 +482,10 @@ public class SqlServerClient
                 return Optional.of(varbinaryColumnMapping());
             case "datetimeoffset":
                 return Optional.of(timestampWithTimeZoneColumnMapping(typeHandle.getRequiredDecimalDigits()));
+            case "datetime": {
+                int precision = typeHandle.getRequiredDecimalDigits();
+                return Optional.of(datetimeColumnMapping(precision));
+            }
         }
 
         switch (typeHandle.getJdbcType()) {
@@ -1086,16 +1095,16 @@ public class SqlServerClient
 //        }
 //    }
 
-    @Override
-    public void abortReadConnection(Connection connection, ResultSet resultSet)
-            throws SQLException
-    {
-        if (!resultSet.isAfterLast()) {
-            // Abort connection before closing. Without this, the SQL Server driver
-            // attempts to drain the connection by reading all the results.
-            connection.abort(directExecutor());
-        }
-    }
+//    @Override
+//    public void abortReadConnection(Connection connection, ResultSet resultSet)
+//            throws SQLException
+//    {
+//        if (!resultSet.isAfterLast()) {
+//            // Abort connection before closing. Without this, the SQL Server driver
+//            // attempts to drain the connection by reading all the results.
+//            connection.abort(directExecutor());
+//        }
+//    }
 
     @Override
     public Connection getConnection(ConnectorSession session, JdbcOutputTableHandle handle)
