@@ -20,8 +20,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
-import com.sybase.jdbc4.jdbc.SybConnection;
-import com.sybase.jdbc4.jdbc.SybSQLException;
+import com.sybase.jdbc42.jdbc.SybConnection;
+import com.sybase.jdbc42.jdbc.SybSQLException;
 import dev.failsafe.Failsafe;
 import dev.failsafe.RetryPolicy;
 import dev.failsafe.function.CheckedSupplier;
@@ -122,6 +122,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.base.Throwables.throwIfInstanceOf;
 import static com.google.common.collect.MoreCollectors.toOptional;
+import static com.google.common.util.concurrent.MoreExecutors.directExecutor;
 import static io.airlift.slice.Slices.wrappedBuffer;
 import static io.trino.plugin.jdbc.CaseSensitivity.CASE_INSENSITIVE;
 import static io.trino.plugin.jdbc.CaseSensitivity.CASE_SENSITIVE;
@@ -1095,16 +1096,16 @@ public class SqlServerClient
 //        }
 //    }
 
-//    @Override
-//    public void abortReadConnection(Connection connection, ResultSet resultSet)
-//            throws SQLException
-//    {
-//        if (!resultSet.isAfterLast()) {
-//            // Abort connection before closing. Without this, the SQL Server driver
-//            // attempts to drain the connection by reading all the results.
-//            connection.abort(directExecutor());
-//        }
-//    }
+    @Override
+    public void abortReadConnection(Connection connection, ResultSet resultSet)
+            throws SQLException
+    {
+        if (!resultSet.isAfterLast()) {
+            // Abort connection before closing. Without this, the SQL Server driver
+            // attempts to drain the connection by reading all the results.
+            connection.abort(directExecutor());
+        }
+    }
 
     @Override
     public Connection getConnection(ConnectorSession session, JdbcOutputTableHandle handle)
